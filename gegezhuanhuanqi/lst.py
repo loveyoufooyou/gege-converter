@@ -6,6 +6,7 @@ class ListBox:
     def __init__(self, root):
         self.box = None
         self.root = root
+        self.index = -1
         self.add()
 
     @property
@@ -59,11 +60,13 @@ class ListBox:
         drag item to other position.
         """
         newindex = self.box.nearest(event.y)
-        if newindex > self.index:
+        if newindex == self.index:
+            return
+        elif newindex > self.index:
             item = self.box.get(self.index)
             self.box.insert(newindex, item)
             self.box.delete(self.index)
-        if newindex < self.index:
+        elif newindex < self.index:
             item = self.box.get(self.index)
             self.box.insert(newindex, item)
             self.box.delete(self.index+1)
