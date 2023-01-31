@@ -1,4 +1,5 @@
 import os
+import time
 from pdf2docx import Converter
 from PyPDF2 import PdfWriter, PdfReader
 from win32com.client import constants
@@ -52,6 +53,7 @@ def combine_with_pictures(paths, storage_path):
     filename = random_str()
     new_path = os.path.join(storage_path, 'picture_'+filename+'.pdf')
     doc.SaveAs(FileName=new_path, FileFormat=17)
+    time.sleep(0.1)
     doc.Close(SaveChanges=0)
     word.Quit()
     return new_path
@@ -83,6 +85,7 @@ def word_to_pdf(path, storage_path, word):
     _, old_filename = os.path.split(path)
     new_filename, _ = os.path.splitext(old_filename)
     new_path = os.path.join(storage_path, new_filename+'.pdf')
+    time.sleep(0.1)
     doc.SaveAs(FileName=new_path, FileFormat=17)
     doc.Close(SaveChanges=0)
 
