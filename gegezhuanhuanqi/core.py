@@ -23,20 +23,25 @@ def pdfs_or_imgs_to_pdf(choice, box):
             new_path = combine_with_pdfs(paths, storage_path)
         elif choice == 'imgs':
             new_path = combine_with_pictures(paths, storage_path)
-        box.clear()
-        tip(new_path, box.root.voice)
+        if new_path:
+            box.clear()
+            tip(new_path, box.root.voice)
     return func
 
 
 def combine_with_pdfs(paths, storage_path):
-    pdf_writer = PdfWriter()
     if not paths:
         return
+    pdf_writer = None
     for path in paths:
         if path.endswith('.pdf'):
+            if not pdf_writer:
+                pdf_writer = PdfWriter()
             pdf_reader = PdfReader(path)
             for page in range(len(pdf_reader.pages)):
                 pdf_writer.add_page(pdf_reader.pages[page])
+    if not pdf_writer:
+        return
     filename = random_str()
     new_path = os.path.join(storage_path, f'combined_{filename}.pdf')
     with open(new_path, 'ab') as f:
@@ -48,14 +53,18 @@ def combine_with_pictures(paths, storage_path):
     """
     EnsureDispatch must be used to create here, if you want to run .exe.
     """
-    word = open_word()
-    word.Visible = False
-    doc = word.Documents.Add()
-    cursor = word.Selection
+    word = None
     for path in paths:
         if path.endswith(IMGS):
+            if not word:
+                word = open_word()
+                word.Visible = False
+                doc = word.Documents.Add()
+                cursor = word.Selection
             cursor.InlineShapes.AddPicture(path)
             cursor.EndKey(Unit=constants.wdStory)  # move cursor to the end
+    if not word:
+        return
     filename = random_str()
     new_path = os.path.join(storage_path, 'picture_'+filename+'.pdf')
     doc.SaveAs(FileName=new_path, FileFormat=17)
@@ -78,17 +87,19 @@ def mutual_conversion_word_pdf(box):
             return
         storage_path = make_storage(paths[0])
         word = None
+        flag = False
         for path in paths:
             if path.endswith('.pdf'):
-                pdf_to_word(path, storage_path)
+                flag = pdf_to_word(path, storage_path)
             if path.endswith(('.docx', '.doc')):
                 if not word:
                     word = open_word()
-                word_to_pdf(path, storage_path, word)
+                flag = word_to_pdf(path, storage_path, word)
         if word:
             word.Quit()
-        box.clear()
-        tip(storage_path, box.root.voice)
+        if flag:
+            box.clear()
+            tip(storage_path, box.root.voice)
     return func
 
 
@@ -100,6 +111,7 @@ def word_to_pdf(path, storage_path, word):
     time.sleep(0.1)
     doc.SaveAs(FileName=new_path, FileFormat=17)
     doc.Close(SaveChanges=0)
+    return True
 
 
 def pdf_to_word(path, storage_path):
@@ -109,6 +121,7 @@ def pdf_to_word(path, storage_path):
     new_path = os.path.join(storage_path, new_filename+'.docx')
     p2w.convert(new_path, start=0, end=None)
     p2w.close()
+    return True
 
 
 ############
@@ -120,11 +133,13 @@ def dispatch(choice, box):
         paths = box.files
         if not paths:
             return
+        flag = False
         storage_path = make_storage(paths[0])
         if choice == 'ico':
-            img_to_ico(paths, storage_path)
-        box.clear()
-        tip(storage_path, box.root.voice)
+            flag = img_to_ico(paths, storage_path)
+        if flag:
+            box.clear()
+            tip(storage_path, box.root.voice)
     return func
 
 
@@ -132,10 +147,13 @@ def img_to_ico(paths, storage_path):
     """
     img -> ico
     """
+    flag = False
     for path in paths:
         if path.endswith(IMGS):
+            flag = True
             img = image_open(path)
             _, old_filename = os.path.split(path)
             new_filename, _ = os.path.splitext(old_filename)
             new_path = os.path.join(storage_path, new_filename+'.ico')
             img.save(new_path)
+    return flag
