@@ -1,10 +1,16 @@
 import os
 import time
+from PIL.Image import open as image_open
 from pdf2docx import Converter
 from PyPDF2 import PdfWriter, PdfReader
 from win32com.client import constants
 from gegezhuanhuanqi.utils import open_word, tip, make_storage, random_str
 from gegezhuanhuanqi.constants import IMGS
+
+##################
+#   pdfs => pdf  #
+#   imgs => pdf  #
+##################
 
 
 def pdfs_or_imgs_to_pdf(choice, box):
@@ -59,6 +65,12 @@ def combine_with_pictures(paths, storage_path):
     return new_path
 
 
+###################
+#   word => pdf   #
+#   pdf  => word  #
+###################
+
+
 def mutual_conversion_word_pdf(box):
     def func():
         paths = box.files
@@ -97,3 +109,33 @@ def pdf_to_word(path, storage_path):
     new_path = os.path.join(storage_path, new_filename+'.docx')
     p2w.convert(new_path, start=0, end=None)
     p2w.close()
+
+
+############
+#  other   #
+############
+
+def dispatch(choice, box):
+    def func():
+        paths = box.files
+        if not paths:
+            return
+        storage_path = make_storage(paths[0])
+        if choice == 'ico':
+            img_to_ico(paths, storage_path)
+        box.clear()
+        tip(storage_path, box.root.voice)
+    return func
+
+
+def img_to_ico(paths, storage_path):
+    """
+    img -> ico
+    """
+    for path in paths:
+        if path.endswith(IMGS):
+            img = image_open(path)
+            _, old_filename = os.path.split(path)
+            new_filename, _ = os.path.splitext(old_filename)
+            new_path = os.path.join(storage_path, new_filename+'.ico')
+            img.save(new_path)

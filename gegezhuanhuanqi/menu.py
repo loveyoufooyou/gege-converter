@@ -3,7 +3,7 @@ from gegezhuanhuanqi.utils import tip_voice
 
 
 class Menuu:
-    def __init__(self, root):
+    def __init__(self, root, buttons):
         self.voice = True
         self.root = root
         self.top_menu = self.add_top()
@@ -11,6 +11,7 @@ class Menuu:
         self.top_menu.add_cascade(label='设置', menu=self.inner_menu)
         self.inner_menu.add_command(label='提示声音开/关', command=self.change_voice)
         self.inner_menu.add_command(label='小黑子食不食油饼', command=tip_voice)
+        self.inner_menu.add_command(label='切换功能', command=buttons.change_functions)
 
     def add_top(self):
         return Menu(self.root)

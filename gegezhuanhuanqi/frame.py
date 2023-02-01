@@ -5,6 +5,7 @@ class Framee():
     def __init__(self, root):
         self.root = root
         self.frame = None
+        
 
     def add_main(self):
         self.frame = Frame(
