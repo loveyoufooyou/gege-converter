@@ -1,11 +1,23 @@
 import os
 import time
+
 from PIL.Image import open as image_open
 from pdf2docx import Converter
 from PyPDF2 import PdfWriter, PdfReader
 from win32com.client import constants
-from gegezhuanhuanqi.utils import open_word, tip, make_storage, random_str
 from gegezhuanhuanqi.constants import IMGS
+from gegezhuanhuanqi.utils import open_word, tip, make_storage, random_str, Library
+
+
+register = Library()
+
+
+def get_storage_path(box):
+    paths = box.files
+    if not paths:
+        return
+    storage_path = make_storage(paths[0])
+    return paths, storage_path
 
 ##################
 #   pdfs => pdf  #
@@ -13,12 +25,10 @@ from gegezhuanhuanqi.constants import IMGS
 ##################
 
 
+@register.tag('pdf_imgs')
 def pdfs_or_imgs_to_pdf(choice, box):
-    def func():
-        paths = box.files
-        if not paths:
-            return
-        storage_path = make_storage(paths[0])
+    def wrapper():
+        paths, storage_path = get_storage_path(box)
         if choice == 'pdfs':
             new_path = combine_with_pdfs(paths, storage_path)
         elif choice == 'imgs':
@@ -26,7 +36,7 @@ def pdfs_or_imgs_to_pdf(choice, box):
         if new_path:
             box.clear()
             tip(new_path, box.root.voice)
-    return func
+    return wrapper
 
 
 def combine_with_pdfs(paths, storage_path):
@@ -79,13 +89,10 @@ def combine_with_pictures(paths, storage_path):
 #   pdf  => word  #
 ###################
 
-
+@register.tag('pdf_word')
 def mutual_conversion_word_pdf(box):
-    def func():
-        paths = box.files
-        if not paths:
-            return
-        storage_path = make_storage(paths[0])
+    def wrapper():
+        paths, storage_path = get_storage_path(box)
         word = None
         flag = False
         for path in paths:
@@ -100,7 +107,7 @@ def mutual_conversion_word_pdf(box):
         if flag:
             box.clear()
             tip(storage_path, box.root.voice)
-    return func
+    return wrapper
 
 
 def word_to_pdf(path, storage_path, word):
@@ -128,19 +135,17 @@ def pdf_to_word(path, storage_path):
 #  other   #
 ############
 
-def dispatch(choice, box):
-    def func():
-        paths = box.files
-        if not paths:
-            return
+@register.tag('img_to_ico')
+def register_img_to_ico(choice, box):
+    def wrapper():
+        paths, storage_path = get_storage_path(box)
         flag = False
-        storage_path = make_storage(paths[0])
         if choice == 'ico':
             flag = img_to_ico(paths, storage_path)
         if flag:
             box.clear()
             tip(storage_path, box.root.voice)
-    return func
+    return wrapper
 
 
 def img_to_ico(paths, storage_path):

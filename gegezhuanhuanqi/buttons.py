@@ -1,5 +1,6 @@
 from tkinter import GROOVE, Button
-from gegezhuanhuanqi.core import dispatch, mutual_conversion_word_pdf, pdfs_or_imgs_to_pdf
+
+from gegezhuanhuanqi.core import register
 
 
 class Buttonn:
@@ -42,7 +43,7 @@ class Buttonn:
         btn = Button(
             self.root,
             text="合并PDF",
-            command=pdfs_or_imgs_to_pdf(choice='pdfs', box=self.box),
+            command=register.tags['pdf_imgs'](choice='pdfs', box=self.box),
             relief=GROOVE,
             width=20,
             height=2
@@ -54,7 +55,7 @@ class Buttonn:
         btn = Button(
             self.root,
             text="图片合并成PDF",
-            command=pdfs_or_imgs_to_pdf(choice='imgs', box=self.box),
+            command=register.tags['pdf_imgs'](choice='imgs', box=self.box),
             relief=GROOVE,
             width=20,
             height=2
@@ -66,7 +67,7 @@ class Buttonn:
         btn = Button(
             self.root,
             text="WORD/PDF相互转换",
-            command=mutual_conversion_word_pdf(box=self.box),
+            command=register.tags['pdf_word'](box=self.box),
             relief=GROOVE,
             width=42,
             height=2
@@ -78,12 +79,12 @@ class Buttonn:
         if self.choice == 0:
             self.btn1.configure(
                 text='生成.ico文件',
-                command=dispatch(choice='ico', box=self.box)
+                command=register.tags['img_to_ico'](choice='ico', box=self.box)
             )
             self.choice += 1
         elif self.choice == 1:
             self.btn1.configure(
                 text='合并PDF',
-                command=pdfs_or_imgs_to_pdf(choice='pdfs', box=self.box)
+                command=register.tags['pdf_imgs'](choice='pdfs', box=self.box)
             )
             self.choice = 0
